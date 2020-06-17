@@ -49,6 +49,14 @@
             </tr>
         </c:forEach>
     </table>
+    <form method="post" action="meals">
+        <input type="hidden" name="action" value="changeId">
+        <dl>
+            <dt>Id user:</dt>
+            <dd><input type="number" value="1" name="id" required></dd>
+        </dl>
+        <button type="submit">Save</button>
+    </form>
 </section>
 </body>
 </html>
