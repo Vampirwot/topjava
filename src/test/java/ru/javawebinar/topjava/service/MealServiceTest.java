@@ -1,17 +1,24 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.rules.TimeLogger;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -24,10 +31,36 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
+@Transactional
 public class MealServiceTest {
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static Map<String, Long> map = new HashMap<>();
+    private long startTime = 0;
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void before() {
+        startTime = System.currentTimeMillis();
+    }
+
+    @After
+    public void after() {
+        long endTime = System.currentTimeMillis();
+        map.put(testName.getMethodName(),endTime-startTime);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        for(Map.Entry<String,Long> entry:map.entrySet()){
+            log.debug(entry.getKey()+" : "+entry.getValue());
+        }
+    }
 
     @Autowired
     private MealService service;
+
 
     @Test
     public void delete() throws Exception {
